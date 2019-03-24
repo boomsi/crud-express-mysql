@@ -1,100 +1,62 @@
 var fs = require('fs')
 
-var dbPath = './db.json'
+var mysql = require('mysql');
 
-// 查找全部学生
+// 1.创建连接
+var connection = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',
+  password: 'root',
+  database: 'students'//数据库名
+});
+
+// 2.连接数据库	打开冰箱门
+connection.connect();
+
 exports.findAll = function (callback) {
-	fs.readFile(dbPath, 'utf8', (err, data) => {
-		if (err) {
-			callback(err)
-		}
-		return callback(null, JSON.parse(data).students)
-		// console.log(JSON.parse(data).students)
-	})
+  connection.query('SELECT * FROM students', function (error, results, fields) {
+    if (error) {
+      return callback(error)
+    }
+    callback(null, results)
+  });
 }
 
-// 根据id查找学生信息
 exports.findById = function (id, callback) {
-	fs.readFile(dbPath, 'utf8', (err, data) => {
-		if (err) {
-			return callback(err)
-		}
-		var students = JSON.parse(data).students
-		var ret = students.find((item) => {
-			return item.id === id
-		})
-		callback(null, ret)
-	})
+  connection.query(`SELECT * FROM students WHERE id=${id}`, function (error, results, fields) {
+    if (error) {
+      return callback(error)
+    }
+    callback(null, results)
+  });
 }
 
-// 保存添加学生信息
 exports.save = function (student, callback) {
-	fs.readFile(dbPath, 'utf8', (err, data) => {
-		if (err) {
-			return callback(err)
-		}
-		var students = JSON.parse(data).students
-		student.id = parseInt(students[0].id) + 1
-		students.unshift(student)
-		console.log(student)
-		var fileData = JSON.stringify({
-			students: students
-		})
-		fs.writeFile(dbPath, fileData, (err)=> {
-			if (err) {
-				return callback(err)
-			}
-			callback(null)
-		})
-	})
+  connection.query(`INSERT INTO students VALUES(null , '${student.name}', ${student.gender}, ${student.age}, '${student.hobbies}')`, function (error, results, fields) {
+    if (error) {
+      return callback(error)
+    }
+    callback(null)
+  });
 }
 
-// 更新学生信息
-exports.updateById = function (student, callback) {
-	fs.readFile(dbPath, 'utf8', (err, data) => {
-		if (err) {
-			return callback(err)
-		}
-		var students = JSON.parse(data).students
-		student.id = parseInt(student.id)
-
-		var ret = students.find((item) => {
-			return student.id === item.id
-		})
-		for (var key in student) {
-			ret[key] = student[key]
-		}
-		var fileData = JSON.stringify({
-			students: students
-		})
-		fs.writeFile(dbPath, fileData, (err) => {
-			if (err) {
-				return callback(err)
-			}
-			callback(null)
-		})
-	})
+exports.editById = function (student, callback) {
+  connection.query(`UPDATE students SET name='${student.name}', age=${student.age}, gender=${student.gender}, hobbies='${student.hobbies}' WHERE id=${student.id}`, function (error, results, fields) {
+    if (error) {
+      return callback(error)
+    }
+    callback(null)
+  });
 }
 
-// 删除学生信息
 exports.deleteById = function (id, callback) {
-	fs.readFile(dbPath, 'utf8', (err, data) => {
-		if (err) {
-			return callback(err)
-		}
-		var students = JSON.parse(data).students
-		var ret = students.findIndex((item) => {
-			return item.id === parseInt(id)
-		})
-		students.splice(ret, 1)
-		var fileData = JSON.stringify({
-			students: students
-		})
-		fs.writeFile(dbPath, fileData, (err) => {
-			if (err) {
-				return callback(err)
-			}
-			callback(null)
-		})
-	})
+  connection.query(`DELETE FROM students WHERE id = ${id}`, function (error, results, fields) {
+      if (error) {
+        return callback(error)
+      }
+      callback(null)
+  });
 }
+
+// 4.关闭连接	关闭冰箱门
+// connection.end();

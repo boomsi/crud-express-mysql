@@ -1,67 +1,65 @@
-var fs = require('fs')
 var express = require('express')
-var Student = require('./student-mysql')
+var Student = require('./student')
+var fs = require('fs')
+var url = require('url')
 
 var router = express.Router()
 
-// 首页
-router.get('/students', (req, res) => {
-	Student.findAll((err, students) => {
-		if (err) {
-			return res.status(500).send('Server error')
-		}
-		res.render('index.html', {
-			students: students
-		})
-	})	
+router.get('/', (req, res) => {
+    Student.findAll((err, data) => {
+        if (err) {
+            res.send(err)
+            return res.status(500).send('error')
+        }
+        res.render('index.html', {
+            students: data
+        })
+    })
 })
 
-// 添加学生
-router.get('/students/new', (req, res) => {
-	res.render('new.html')
+router.get('/new', (req, res) => {
+    res.render('new.html')
 })
 
-// 提交添加数据
-router.post('/students/new', (req, res) => {
-	Student.save(req.body, (err) => {
-		if (err) {
-			return res.status(500).send('Server error')
-		}
-		res.redirect('/students')
-	})
+router.post('/new', (req, res) => {
+    Student.save(req.body, (err) => {
+        if (err) {
+            res.status(500).send('err')
+        }
+    })
+    res.redirect('/')
 })
 
-// 编辑学生信息
-router.get('/students/edit', (req, res) => {
-	Student.findById(parseInt(req.query.id), (err, student) => {
-		if (err) {
-			return res.status(500).send('Server error')
-		}
-		res.render('edit.html', {
-			student: student[0]
-		})
-	})
+router.get('/edit', (req, res) => {
+    const id = url.parse(req.url, true).query.id
+    Student.findById(id, (err, data) => {
+      if (err) {
+        res.status(500).send('error')
+      }
+      res.render('edit.html', {
+        student: data[0]
+      })
+    })
 })
 
-// 提交编辑学生信息
-router.post('/students/edit', (req, res) => {
-	Student.updateById(req.body, (err) => {
-		if (err) {
-			return res.status(500).send('Server error')
-		}
-		res.redirect('/students')
-	})
+router.post('/edit', (req, res) => {
+    Student.editById(req.body, (err) => {
+      if (err) {
+        res.send(err)
+        res.status(500).send('err')
+      }
+      res.redirect('/')
+    })
 })
 
-// 删除学生
-router.get('/students/delete', (req, res) => {
-	Student.deleteById(parseInt(req.query.id), (err) => {
-		if (err) {
-			return res.status(500).send('Server error')
-		}
-		res.redirect('/students')
-	})
+router.get('/delete', (req, res) => {
+  const id = url.parse(req.url, true).query.id
+  Student.deleteById(id, (err) => {
+    if (err) {
+      res.status(500).send('err')
+    }
+    res.redirect('/')
+  })
 })
-
 
 module.exports = router
