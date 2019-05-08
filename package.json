@@ -1,0 +1,30 @@
+{
+  "name": "crud-express-mysql",
+  "version": "1.0.0",
+  "description": "nodejs > 使用express结合mysql实现数据基本的增删改查",
+  "main": "app.js",
+  "dependencies": {
+    "bootstrap": "^3.3.7",
+    "express": "^4.16.4",
+    "mysql": "^2.17.1"
+  },
+  "devDependencies": {
+    "art-template": "^4.13.2",
+    "body-parser": "^1.19.0",
+    "express-art-template": "^1.0.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/boomsi/crud-express-mysql.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/boomsi/crud-express-mysql/issues"
+  },
+  "homepage": "https://github.com/boomsi/crud-express-mysql#readme"
+}
